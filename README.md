@@ -1,142 +1,72 @@
-# 🎭 Mime & Meme — AI Meme Consultant Agent
+# TikTok A/B Testing Analysis
 
-> *An n8n AI agent that tells you exactly which trending memes to put in your video and where. Built out of frustration, spite, and a broke girl's ingenuity.*
-
----
-
-## 🤔 The Problem
-
-I make videos. I know what I want. I have a full cinematic vision in my head.
-
-And then I open a video editor and my brain just... leaves. ✌️
-
-So I thought — what if an AI could at least tell me *which memes are trending* and *exactly where to slap them* in my video? That way I just have to execute, not think.
-
-Turns out building that is its own adventure. Buckle up.
+A simulation of the kind of experimentation work that runs quietly behind every product decision at companies like TikTok, YouTube, and Meta. Four concurrent experiments, 50,000 users, real statistical methods.
 
 ---
 
-## 💀 The Journey (aka everything that went wrong)
+## What this is
 
-### Act 1: Flowise (a tragedy in 3 acts)
-Started with Flowise. Seemed simple. Was not simple.
+Product teams at large platforms don't ship features because someone had a good feeling. They run controlled experiments, measure the effect on a specific metric, and make the call based on evidence. This project simulates exactly that — a Q2 experiment suite testing four separate product changes simultaneously, the way a real data analyst would handle it.
 
-- `npm install -g flowise` ✅
-- `npx flowise start` ❌ *Cannot find module 'turndown'*
-- Install turndown ✅
-- `npx flowise start` ❌ *Cannot find module 'winston-daily-rotate-file'*
-- Install that ✅
-- `npx flowise start` ❌ *Cannot find module 'multer-s3'*
-
-At some point I was just manually installing the entire internet one package at a time. We don't talk about Flowise anymore.
-
-### Act 2: The Node.js Problem
-Turns out I had Node.js v24 installed. Flowise wanted v20. They did not get along.
-
-Had to install `nvm-windows`, switch Node versions, and start over. Classic.
-
-### Act 3: n8n enters the chat 🦸
-Switched to n8n. `npm install -g n8n` actually worked. `n8n start` actually worked. I nearly cried.
-
-### Act 4: The API Key Incident 🔑
-Set up Google Gemini as the AI brain. Free tier. No budget. Perfect.
-
-Accidentally pasted my API key in a public chat. 
-
-Someone (or something) used my entire free quota in approximately 4 seconds.
-
-Quota: **0**. Daily limit: **0**. Me: 💀
-
-### Act 5: Groq saves the day
-Switched to Groq (free, fast, no drama). Used `llama-3.3-70b-versatile`.
-
-First model I tried was decommissioned. Second one worked.
-
-**Workflow executed successfully.** 🎉
+The analysis covers the full workflow: define the hypothesis, split users into control and treatment groups, run the appropriate statistical test, measure effect size, and write a clear recommendation. Two experiments show a real effect. Two don't. That's intentional — in practice, most experiments fail to move the metric they target, and knowing when *not* to ship is just as important as knowing when to.
 
 ---
 
-## 🛠️ What It Actually Does
+## The dataset
 
-You describe your video → the agent searches for trending memes → it tells you exactly where to put them.
+The data is synthetic, generated using Python's NumPy library. This is the honest and correct approach — TikTok's internal user data is proprietary and never publicly released. The distributions were calibrated against publicly reported industry benchmarks:
 
-**Example input:**
-> "I'm making a 60-second morning routine video for Instagram Reels, audience is Gen Z"
+- Average TikTok session length: ~10 minutes
+- Typical video completion rate: 50–60%
+- Feed click-through rate: 3–6%
+- Daily app opens for active users: 8–10
 
-**Example output:**
-> 1. *"I'm not a morning person" meme* — insert at 0:05 when you hit snooze, use as reaction overlay
-> 2. *"Coffee is my love language"* — insert at 0:30 when brewing coffee, use as text overlay
-> 3. *"Adulting is hard"* — insert at 0:45 when getting ready, use as cutaway
+**Normal distribution** was used for continuous metrics like watch time and session length — human behaviour naturally clusters around a mean with variance either side. **Binomial distribution** was used for binary outcomes like clicks — the result is either 0 or 1, and the probability parameter was set to match real-world CTR benchmarks.
 
-Timestamp. Placement. Reason. All of it. You just have to execute.
-
----
-
-## 🧱 Tech Stack
-
-| Tool | Role | Cost |
-|------|------|------|
-| [n8n](https://n8n.io) | Workflow automation & agent orchestration | Free (self-hosted) |
-| [Groq](https://console.groq.com) | LLM — LLaMA 3.3 70B Versatile | Free |
-| [SerpAPI](https://serpapi.com) | Real-time Google search for trending memes | Free tier |
-| n8n Simple Memory | Conversational memory across the chat | Built-in |
+The final dataset has 50,000 rows and 13 columns, covering user demographics (age, country, device, tenure) and experiment assignments and outcome metrics for all four experiments.
 
 ---
 
-## 🚀 How to Run It
+## The four experiments
 
-### Prerequisites
-- Node.js v20 (use [nvm-windows](https://github.com/coreybutler/nvm-windows) if you have v24 like me 😭)
-- A [Groq API key](https://console.groq.com) (free)
-- A [SerpAPI key](https://serpapi.com) (free tier)
+**Experiment 1 — Recommendation Algorithm**
+Tests whether a new For You feed ranking model increases average watch time per video. Measured using Welch's T-Test. Result: significant — the algorithm lifted watch time by ~12 seconds on average.
 
-### Setup
+**Experiment 2 — Thumbnail Format**
+Tests whether a larger thumbnail format increases click-through rate. CTR is a binary outcome (clicked or not), so Chi-Square was used instead of a T-Test. Result: significant — CTR improved from ~4% to ~5.8%.
 
-```bash
-# Install n8n
-npm install -g n8n
+**Experiment 3 — Notification Timing**
+Tests whether changing the push notification send time increases daily app opens. Result: not significant — both groups were virtually identical. Do not ship.
 
-# Start n8n
-n8n start
-```
-
-Open `http://localhost:5678` in your browser.
-
-### Import the workflow
-
-1. Go to your n8n dashboard
-2. Click the **+** → **Import from file**
-3. Upload `Mime and Meme.json`
-4. Add your Groq and SerpAPI credentials
-5. Hit **Open chat** and describe your video!
+**Experiment 4 — Autoplay Toggle**
+Tests whether enabling autoplay by default extends session length. Result: not significant — no detectable effect. Do not ship.
 
 ---
 
-## 💬 Example Prompts to Try
+## Why these statistical tests
 
-- *"I'm making a 30-second gym motivation video for TikTok, targeting college students"*
-- *"YouTube video about studying at 2am, 10 minutes long, my audience loves dark humour"*
-- *"Instagram Reel of my London cafe hopping day, very aesthetic and cozy vibes"*
+**Welch's T-Test** compares the means of two groups. The Welch variant is used specifically because it does not assume equal variance between control and treatment — a safer assumption in real experiments where group characteristics may differ slightly. It answers the question: is this difference real, or is it just noise?
 
----
+**Chi-Square Test** is used when the outcome is categorical rather than continuous. For CTR, a user either clicked or didn't — there's no mean to compare. Chi-Square tests whether the distribution of clicks differs significantly between the two groups.
 
-## 🗺️ What's Next (v2 plans)
+**Cohen's d** measures practical effect size alongside the p-value. A result can be statistically significant but so small it makes no difference in the real world. Cohen's d gives you a second check: is this effect actually worth caring about?
 
-- [ ] Multi-agent setup: Trend Researcher → Edit Planner → Caption Writer
-- [ ] YouTube trending sounds integration
-- [ ] Reddit meme scraper for niche communities
-- [ ] Clean formatted output (instead of a wall of text)
+**p-value threshold: 0.05** — meaning there's less than a 5% probability the observed result happened by chance before concluding the treatment had a real effect.
 
 ---
 
-## 🧠 What I Learned
+## What sets this apart
 
-- n8n is genuinely powerful and the free self-hosted version has no limits
-- Always revoke API keys you accidentally paste anywhere (ask me how I know)
-- Node version conflicts will humble you
-- Groq is underrated and fast
-- Building something that solves *your own* problem hits different
+Most portfolio A/B testing projects run one experiment on a Kaggle dataset and call it done. This one:
+
+- Runs four experiments simultaneously, the way real platforms operate
+- Deliberately includes two null results — because real experimentation suites don't produce significant findings every time
+- Uses the correct test for each metric type rather than applying T-Test to everything
+- Computes effect size, not just significance
+- Presents findings in a stakeholder dashboard written in plain English — verdicts, recommendations, and business context — not just p-values
+
+The Streamlit dashboard was designed to be readable by a product manager or CEO, not just a data scientist.
 
 ---
 
-*Built by [Kalpana Joyce Dovari](https://github.com/kalpanajoycedovari) — MSc AI student, chronic video procrastinator, now slightly less so.*
+## Project structure
