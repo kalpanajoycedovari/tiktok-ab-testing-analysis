@@ -69,4 +69,27 @@ The Streamlit dashboard was designed to be readable by a product manager or CEO,
 
 ---
 
-## Project structure
+---
+
+## Running it locally
+
+```bash
+git clone https://github.com/kalpanajoycedovari/tiktok-ab-testing-analysis
+cd tiktok-ab-testing-analysis
+pip install -r requirements.txt
+python data/generate_data.py
+streamlit run streamlit_app/app.py
+```
+
+---
+
+## Live demo
+
+[tiktok-ab-testing-analysis.streamlit.app](https://tiktok-ab-testing-analysis.streamlit.app)
+
+---
+
+## Author
+
+Kalpana Joyce Dovari — MSc Artificial Intelligence, Northumbria University London  
+[Portfolio](https://my-portfolio-taupe-kappa-13.vercel.app) · [GitHub](https://github.com/kalpanajoycedovari) · [LinkedIn](https://linkedin.com/in/kalpanajoycedovari)
